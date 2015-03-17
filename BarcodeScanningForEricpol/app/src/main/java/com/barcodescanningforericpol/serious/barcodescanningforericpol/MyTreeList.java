@@ -26,7 +26,8 @@ public  class MyTreeList extends Fragment {
     private TextView statusBar;
     private TextView nodeValueBar;
     public static com.google.zxing.integration.android.IntentIntegrator scanIntegrator;
-
+    public static String elasticValue1 = null;
+    public static String elasticValue2 = null;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,14 +141,20 @@ public  class MyTreeList extends Fragment {
                         MainActivity.mydb.updateContent("user", IconTreeItemHolder.clickedParentInfo[1], IconTreeItemHolder.clickedParentInfo[0], IconTreeItemHolder.clickedParentInfo[2]);
                         MainActivity.mydb.updateContent(Info[0], Info[1], MainActivity.tempSource, IconTreeItemHolder.clickedParentInfo[0]);
                         Log.d(MainActivity.LOG_TAG, "Saved scanned content");
+                        elasticValue1 = Info[1];
+                        elasticValue2 = MainActivity.tempSource;
 
                     }
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                            "Scan added. Reopen list to see changes in the tree-list", Toast.LENGTH_SHORT);
+                    toast.show();
                 }
 //                IconTreeItemHolder.clicked_parent;
                 Log.d(MainActivity.LOG_TAG, "FORMAT and CONTENT received");
                 Log.d(MainActivity.LOG_TAG, "Starting to show dialog content");
             }
             else{
+                elasticValue1 = "interrupt";
                 Toast toast = Toast.makeText(getActivity().getApplicationContext(),
                         "No scan data received!", Toast.LENGTH_SHORT);
                 toast.show();

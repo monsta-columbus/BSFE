@@ -33,9 +33,6 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
         tvValue = (TextView) view.findViewById(R.id.node_value);
         tvValue.setText(value.publicText+'\n' + value.text);
 
-
-        Log.d(MainActivity.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
-
         final PrintView iconView = (PrintView) view.findViewById(R.id.icon);
         iconView.setIconText(context.getResources().getString(value.icon));
 
@@ -45,23 +42,24 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
             @Override
             public void onClick(View v) {
 //                final TreeNode node, IconTreeItem value
-
-
                 if (node.getLevel() == 1) {
                     nodeLevel = 1;
-                    clickedParentInfo[0] = ((IconTreeItemHolder.IconTreeItem)node.getValue()).text;
-                    clickedParentInfo[1] = ((IconTreeItemHolder.IconTreeItem)node.getValue()).publicText;
+                    clickedParentInfo[0] = ((IconTreeItem)node.getValue()).text;
+                    clickedParentInfo[1] = ((IconTreeItem)node.getValue()).publicText;
                     MyTreeList.scanIntegrator.initiateScan();
+                    Log.d(MainActivity.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
                     Log.d(MainActivity.LOG_TAG, "Scanning");
                 }
                 if (node.getLevel() == 2) {
                     nodeLevel = 2;
-                    clickedParentInfo[0] = ((IconTreeItemHolder.IconTreeItem)node.getValue()).text;
-                    clickedParentInfo[1] = ((IconTreeItemHolder.IconTreeItem)node.getValue()).publicText;
-                    clickedParentInfo[2] = ((IconTreeItemHolder.IconTreeItem)node.getParent().getValue()).text;
-                    clickedParentInfo[3] = ((IconTreeItemHolder.IconTreeItem)node.getParent().getValue()).publicText;
+                    clickedParentInfo[0] = ((IconTreeItem)node.getValue()).text;
+                    clickedParentInfo[1] = ((IconTreeItem)node.getValue()).publicText;
+                    clickedParentInfo[2] = ((IconTreeItem)node.getParent().getValue()).text;
+                    clickedParentInfo[3] = ((IconTreeItem)node.getParent().getValue()).publicText;
                     MyTreeList.scanIntegrator.initiateScan();
+                    Log.d(MainActivity.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
                     Log.d(MainActivity.LOG_TAG, "Scanning");
+
                 }
 //                TreeNode newFolder = new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string.ic_folder, "New Folder", "NewFolder"));
 //                getTreeView().addNode(node, newFolder);
@@ -71,6 +69,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
         view.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 getTreeView().removeNode(node);
             }
         });

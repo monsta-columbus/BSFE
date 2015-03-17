@@ -40,7 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
             BARCODE
     };
     private String whereMaxId = "_id=(SELECT max(_id) FROM mytable)";
-    private static  Cursor cursor;
+//    private Cursor cursor;
     private static String[] lastBarcodeInfo;
 
     @Override
@@ -86,7 +86,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public String getLastRow(){
         SQLiteDatabase db = this.getWritableDatabase();
         //TODO whereMaxId (possibly fixed)
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,             // The table to query
                 safeProjection,             // The columns to return
                 whereMaxId,             // The columns for the WHERE clause
@@ -110,7 +110,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public String getAllRowsForExport(){
         StringBuffer expSB = new StringBuffer("");
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 safeProjection,
                 null,
@@ -135,7 +135,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<String> getAllRooms(){
         ArrayList<String> buffer = new ArrayList<String>();
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,BC_TYPE},
                 BC_TYPE+"=?",
@@ -145,6 +145,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         for(;cursor.moveToNext();){
+            Log.d(MainActivity.LOG_TAG, "moveToNext room "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         for(;cursor.moveToPrevious();){
             if(!buffer.contains(cursor.getString(cursor.getColumnIndex(BARCODE))))
@@ -157,16 +158,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<String> getAllRoomSettlers(String from_room){
         ArrayList<String> buffer = new ArrayList<String>();
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,FATHER},
                 FATHER+"=?",
                 new String[]{from_room},
                 null,
                 null,
-                sortOrder
+                BC_TYPE+" DESC"
         );
         for(;cursor.moveToNext();){
+            Log.d(MainActivity.LOG_TAG, "moveToNext person "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         for(;cursor.moveToPrevious();){
             if(!buffer.contains(cursor.getString(cursor.getColumnIndex(BARCODE))))
@@ -179,7 +181,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public List<TreeNode>  getChildrenOfSettlers(String settler){
         List<TreeNode>children=new ArrayList<TreeNode>();
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,FATHER},
                 FATHER+"=?",
@@ -189,9 +191,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         for(;cursor.moveToNext();){
+            Log.d(MainActivity.LOG_TAG, "moveToNext item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         for(;cursor.moveToPrevious();){
-            children.add(new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string.ic_settings,cursor.getString(cursor.getColumnIndex(BARCODE)), MainActivity.mydb.getColumnDescriptionName(cursor.getString(cursor.getColumnIndex(BARCODE))))));
+            children.add(new TreeNode(new IconTreeItemHolder.IconTreeItem(
+                    R.string.ic_settings,
+                    cursor.getString(cursor.getColumnIndex(BARCODE)),
+                    MainActivity.mydb.getColumnDescriptionName(cursor.getString(cursor.getColumnIndex(BARCODE))))));
             Log.d(MainActivity.LOG_TAG, "item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         this.close();
@@ -200,7 +206,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean isItem(String barcode){
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,BC_TYPE},
                 BARCODE+"=?",
@@ -216,7 +222,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean isPerson(String barcode){
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,BC_TYPE},
                 BARCODE+"=?",
@@ -232,7 +238,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean isRoom(String barcode){
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,BC_TYPE},
                 BARCODE+"=?",
@@ -248,7 +254,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public String getColumnDescriptionName(String barcode){
         SQLiteDatabase db = this.getWritableDatabase();
-        cursor = db.query(
+        Cursor cursor = db.query(
                 TABLE_NAME,
                 new String[]{BARCODE,BC_VALUE},
                 BARCODE+"=?",
@@ -271,7 +277,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public String[] specialGetLastRow(){
         SQLiteDatabase db = this.getWritableDatabase();
-        try {cursor = db.query(
+        try {Cursor cursor = db.query(
                 TABLE_NAME,             // The table to query
                 projection,             // The columns to return
                 whereMaxId,             // The columns for the WHERE clause
