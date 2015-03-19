@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 public class MyDialogFragment extends DialogFragment implements OnClickListener{
-    final String LOG_TAG = "epolLogs";
+    public static final String LOG_TAG = MyDialogFragment.class.getSimpleName();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
@@ -25,7 +25,7 @@ public class MyDialogFragment extends DialogFragment implements OnClickListener{
     }
 
     public void onClick(View v) {
-        Log.d(LOG_TAG, "SkipSaveDialog: " + ((Button) v).getText());
+        Log.d(MyDialogFragment.LOG_TAG, "SkipSaveDialog: " + ((Button) v).getText());
         if(v.getId() == R.id.save_button) {
 //            DateFormat fr = SimpleDateFormat.getDateTimeInstance();
 //            DateFormat fr = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -36,18 +36,23 @@ public class MyDialogFragment extends DialogFragment implements OnClickListener{
                 String[] Info = MainActivity.myidb.getInfo(new String[]{MainActivity.tempSource});
 //                MainActivity.mydb.updateContent(Info[0], Info[1], MainActivity.tempSource, MainActivity.mydb.getFather(MainActivity.tempSource,Info[0]));
                 MainActivity.mydb.updateContent(Info[0], Info[1], MainActivity.tempSource, MainActivity.mydb.getFather(Info[0]));
-                Log.d(LOG_TAG, "Saved scanned content");
+                MainActivity.contentTxt.setText(Info[1] + '\n' + MainActivity.tempSource);
+                Log.d(MyDialogFragment.LOG_TAG, "Saved scanned content");
                 dismiss();
             }
             else{
                 String[] Info = MainActivity.myidb.getInfo(new String[]{MainActivity.tempSource});
                 if (Info[0].equals("room")){
                     MainActivity.mydb.updateContent(Info[0], Info[1], MainActivity.tempSource, "empty");
-                    Log.d(LOG_TAG, "Saved scanned content");
+                    MainActivity.contentTxt.setText(Info[1] + '\n' + MainActivity.tempSource);
+                    Log.d(MyDialogFragment.LOG_TAG, "Saved scanned content");
                     dismiss();
                 }
                 else {
                     //getActivity().getApplicationContext()
+                    MainActivity.formatTxt.setText("Maybe you are not imported database with all existing barcodes? ");
+                    MainActivity.contentTxt.setText("Scan room first");
+
                     Toast toast = Toast.makeText(getActivity().getApplicationContext(),
                             "You should scan room first. Please, press the 'Skip' button and start again", Toast.LENGTH_SHORT);
                     toast.show();
@@ -56,18 +61,19 @@ public class MyDialogFragment extends DialogFragment implements OnClickListener{
         }
         if(v.getId() == R.id.skip_button){
             MainActivity.tempSource = null;
-            Log.d(LOG_TAG, "Skipped. Nothing added");
+            MainActivity.contentTxt.setText("Skipped. Nothing added");
+            Log.d(MyDialogFragment.LOG_TAG, "Skipped. Nothing added");
             dismiss();
         }
     }
 
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        Log.d(LOG_TAG, "SkipSaveDialog: onDismiss");
+        Log.d(MyDialogFragment.LOG_TAG, "SkipSaveDialog: onDismiss");
     }
 
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        Log.d(LOG_TAG, "SkipSaveDialog: onCancel");
+        Log.d(MyDialogFragment.LOG_TAG, "SkipSaveDialog: onCancel");
     }
 }

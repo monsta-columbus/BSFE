@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.johnkil.print.PrintView;
 import com.unnamed.b.atv.model.TreeNode;
@@ -16,6 +17,7 @@ import com.unnamed.b.atv.model.TreeNode;
  * Created by emergency on 3/5/15.
  */
 public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItemHolder.IconTreeItem> {
+    public static final String LOG_TAG = IconTreeItemHolder.class.getSimpleName();
     private TextView tvValue;
     private PrintView arrowView;
     private View view;
@@ -31,7 +33,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
         final LayoutInflater inflater = LayoutInflater.from(context);
         view = inflater.inflate(R.layout.layout_icon_node, null, false);
         tvValue = (TextView) view.findViewById(R.id.node_value);
-        tvValue.setText(value.publicText+'\n' + value.text);
+        tvValue.setText(value.publicText +'\n' + value.text);
 
         final PrintView iconView = (PrintView) view.findViewById(R.id.icon);
         iconView.setIconText(context.getResources().getString(value.icon));
@@ -47,8 +49,8 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
                     clickedParentInfo[0] = ((IconTreeItem)node.getValue()).text;
                     clickedParentInfo[1] = ((IconTreeItem)node.getValue()).publicText;
                     MyTreeList.scanIntegrator.initiateScan();
-                    Log.d(MainActivity.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
-                    Log.d(MainActivity.LOG_TAG, "Scanning");
+                    Log.d(IconTreeItemHolder.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
+                    Log.d(IconTreeItemHolder.LOG_TAG, "Scanning");
                 }
                 if (node.getLevel() == 2) {
                     nodeLevel = 2;
@@ -57,8 +59,8 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
                     clickedParentInfo[2] = ((IconTreeItem)node.getParent().getValue()).text;
                     clickedParentInfo[3] = ((IconTreeItem)node.getParent().getValue()).publicText;
                     MyTreeList.scanIntegrator.initiateScan();
-                    Log.d(MainActivity.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
-                    Log.d(MainActivity.LOG_TAG, "Scanning");
+                    Log.d(IconTreeItemHolder.LOG_TAG, clickedParentInfo[0] + " " + clickedParentInfo[1]);
+                    Log.d(IconTreeItemHolder.LOG_TAG, "Scanning");
 
                 }
 //                TreeNode newFolder = new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string.ic_folder, "New Folder", "NewFolder"));
@@ -69,6 +71,51 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
         view.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (node.getLevel() == 1) {
+                    Log.d(IconTreeItemHolder.LOG_TAG, "You don't have permission to delete rows at this level");
+
+
+
+                }
+                if (node.getLevel() == 2) {
+
+                    if(MainActivity.mydb.isItem(((IconTreeItem)node.getValue()).text)){
+                        Log.d(IconTreeItemHolder.LOG_TAG, "Deleting item from the tree at level two");
+                        MainActivity.mydb.deleteExactItem(new String[]{((IconTreeItem) node.getValue()).text});
+                        Log.d(IconTreeItemHolder.LOG_TAG, "One item deleted");
+                        MainActivity.formatTxt.setText("Row deleted. Last scanned barcode:");
+                        MainActivity.contentTxt.setText(MainActivity.mydb.getLastRow());
+
+
+                        //todo toast
+//                        Toast toast = Toast.makeText(MyTreeList.getActivity().getApplicationContext(),
+//                                "Scan added. Reopen list to see changes in the tree-list", Toast.LENGTH_SHORT);
+//                        toast.show();
+                    }
+                    else{
+                        Log.d(IconTreeItemHolder.LOG_TAG, "Deleting person from the tree at level two");
+                        MainActivity.mydb.deleteExactPersonAndChildren(new String[]{((IconTreeItem)node.getValue()).text});
+                        MainActivity.formatTxt.setText("Person " + ((IconTreeItem)node.getValue()).publicText + " and his children deleted!. Last scanned barcode:");
+                        MainActivity.contentTxt.setText(MainActivity.mydb.getLastRow());
+
+
+                        //todo toast
+                    }
+
+
+                }
+                if (node.getLevel() == 3) {
+                    Log.d(IconTreeItemHolder.LOG_TAG, "Deleting item from the tree at level three");
+                    Log.d(IconTreeItemHolder.LOG_TAG, ((IconTreeItem)node.getValue()).text);
+                    MainActivity.mydb.deleteExactItem(new String[]{((IconTreeItem) node.getValue()).text});
+                    Log.d(IconTreeItemHolder.LOG_TAG, "One item deleted");
+
+
+                    MainActivity.formatTxt.setText("Row deleted. Last scanned barcode:");
+                    MainActivity.contentTxt.setText(MainActivity.mydb.getLastRow());
+
+                    //todo toast
+                }
 
                 getTreeView().removeNode(node);
             }

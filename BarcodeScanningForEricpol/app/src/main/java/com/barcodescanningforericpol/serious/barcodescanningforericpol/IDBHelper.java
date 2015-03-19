@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 public class IDBHelper extends SQLiteOpenHelper {
+    public static final String LOG_TAG = IDBHelper.class.getSimpleName();
     private static final int DATABASE_VERSION = 1;
     public static String type = null;
 //    private static final String DATABASE_NAME = "/storage/emulated/0/Imported.db";
@@ -38,9 +39,9 @@ public class IDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase idb) {
-        Log.d(MainActivity.LOG_TAG, "--- onCreate database ---");
+        Log.d(IDBHelper.LOG_TAG, "--- onCreate database ---");
         idb.execSQL(CREATE_TABLE_BARS);
-        Log.d(MainActivity.LOG_TAG, "DB created or already exists");
+        Log.d(IDBHelper.LOG_TAG, "DB created or already exists");
     }
 
     @Override
@@ -54,7 +55,7 @@ public class IDBHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         //TODO fill db from txt file
         try{
-            Log.d(MainActivity.LOG_TAG, "4");
+            Log.d(IDBHelper.LOG_TAG, "4");
             BufferedReader br = new BufferedReader(new FileReader("/storage/emulated/0/ExportForAndroid.dat"));
             try {
                 String line = br.readLine();
@@ -64,15 +65,15 @@ public class IDBHelper extends SQLiteOpenHelper {
                     String[] contentContainer;
                     while (line != null) {
                         contentContainer = line.split("<delimiter>");
-                        Log.d(MainActivity.LOG_TAG, contentContainer[0] +" "+contentContainer[1] +" "+contentContainer[2]);
+                        Log.d(IDBHelper.LOG_TAG, contentContainer[0] +" "+contentContainer[1] +" "+contentContainer[2]);
 
                         contentValues.put(BC_TYPE, contentContainer[2]);
-                        Log.d(MainActivity.LOG_TAG, "Setting content values: bc_type OK");
+                        Log.d(IDBHelper.LOG_TAG, "Setting content values: bc_type OK");
                         contentValues.put(BC_VALUE, contentContainer[1]);
-                        Log.d(MainActivity.LOG_TAG, "Setting content values: bc_value OK");
+                        Log.d(IDBHelper.LOG_TAG, "Setting content values: bc_value OK");
                         contentValues.put(BARCODE, contentContainer[0]);
-                        Log.d(MainActivity.LOG_TAG, "Setting content values: barcode OK");
-                        Log.d(MainActivity.LOG_TAG, "Putting content values into DB file");
+                        Log.d(IDBHelper.LOG_TAG, "Setting content values: barcode OK");
+                        Log.d(IDBHelper.LOG_TAG, "Putting content values into DB file");
                         idb.insert(TABLE_NAME, null, contentValues);
                         line = br.readLine();
                         ++numberOfImportedBarcodes;
@@ -117,7 +118,7 @@ public class IDBHelper extends SQLiteOpenHelper {
         }
         cursor.moveToFirst();
         index = cursor.getColumnIndex(BC_TYPE);
-        Log.d(MainActivity.LOG_TAG, ""+index);
+        Log.d(IDBHelper.LOG_TAG, ""+index);
         String[] sss = {"",""};
         //TODO catch exception 1
         try{sss[0] = cursor.getString(2);
@@ -129,7 +130,7 @@ public class IDBHelper extends SQLiteOpenHelper {
             type = null;//todo useless?
         }
         index = cursor.getColumnIndex(BC_VALUE);
-        Log.d(MainActivity.LOG_TAG, ""+index);
+        Log.d(IDBHelper.LOG_TAG, ""+index);
         try{sss[1] = cursor.getString(3);}
         catch(Exception e){
             e.printStackTrace();

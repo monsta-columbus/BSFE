@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
+    public static final String LOG_TAG = DBHelper.class.getSimpleName();
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "/storage/emulated/0/ScannedBars.db";
     private static final String TABLE_NAME = "mytable";
@@ -37,17 +38,18 @@ public class DBHelper extends SQLiteOpenHelper {
     };
     private String[] safeProjection = {
             COLUMN_ID,
-            BARCODE
+            BARCODE,
+            BC_VALUE
     };
-    private String whereMaxId = "_id=(SELECT max(_id) FROM mytable)";
+    private String whereMaxId = "_id=(SELECT max(_id) FROM " + TABLE_NAME + ")";
 //    private Cursor cursor;
     private static String[] lastBarcodeInfo;
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.d(MainActivity.LOG_TAG, "--- onCreate database ---");
+        Log.d(DBHelper.LOG_TAG, "--- onCreate database ---");
         db.execSQL(CREATE_TABLE_BARS);
-        Log.d(MainActivity.LOG_TAG, "DB created or already exists");
+        Log.d(DBHelper.LOG_TAG, "DB created or already exists");
     }
 
     @Override
@@ -55,31 +57,51 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void deleteLastRow(){
-        Log.d(MainActivity.LOG_TAG, "getWritableDatabase");
+        Log.d(DBHelper.LOG_TAG, "getWritableDatabase");
         SQLiteDatabase db = this.getWritableDatabase();
-        Log.d(MainActivity.LOG_TAG, "Selecting");
-        db.delete("mytable","_id=(SELECT max(_id) FROM mytable)", null);
-        Log.d(MainActivity.LOG_TAG, "Row deleted!");
+        Log.d(DBHelper.LOG_TAG, "Selecting");
+        db.delete(TABLE_NAME, "_id=(SELECT max(_id) FROM " + TABLE_NAME + ")", null);
+        Log.d(DBHelper.LOG_TAG, "Row deleted!");
         this.close();
     }
 
-    public void updateContent (String bc_type, String bc_value, String barcode, String father){
-        Log.d(MainActivity.LOG_TAG, "Start for updating current DB");
+    public void deleteExactItem(String[] barcode){
+        Log.d(DBHelper.LOG_TAG, "getWritableDatabase");
         SQLiteDatabase db = this.getWritableDatabase();
-        Log.d(MainActivity.LOG_TAG, "Got writable database");
+        Log.d(DBHelper.LOG_TAG, "Selecting");
+        db.delete(TABLE_NAME, BARCODE + "=?", barcode);
+        Log.d(DBHelper.LOG_TAG, "Row " + barcode[0] + " deleted!");
+        this.close();
+    }
+
+    public void deleteExactPersonAndChildren(String[] barcode){
+        Log.d(DBHelper.LOG_TAG, "getWritableDatabase");
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.d(DBHelper.LOG_TAG, "Selecting");
+        db.delete(TABLE_NAME, BARCODE + "=?", barcode);
+        db.delete(TABLE_NAME, FATHER + "=?", barcode);
+        Log.d(DBHelper.LOG_TAG, "Person " + barcode[0] + "and his children deleted!");
+        this.close();
+    }
+
+
+    public void updateContent (String bc_type, String bc_value, String barcode, String father){
+        Log.d(DBHelper.LOG_TAG, "Start for updating current DB");
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.d(DBHelper.LOG_TAG, "Got writable database");
         ContentValues contentValues = new ContentValues();
-        Log.d(MainActivity.LOG_TAG, "Setting content values: started");
+        Log.d(DBHelper.LOG_TAG, "Setting content values: started");
         contentValues.put(BC_TYPE, bc_type);
-        Log.d(MainActivity.LOG_TAG, "Setting content values: bc_type OK");
+        Log.d(DBHelper.LOG_TAG, "Setting content values: bc_type OK");
         contentValues.put(BC_VALUE, bc_value);
-        Log.d(MainActivity.LOG_TAG, "Setting content values: bc_value OK");
+        Log.d(DBHelper.LOG_TAG, "Setting content values: bc_value OK");
         contentValues.put(BARCODE, barcode);
-        Log.d(MainActivity.LOG_TAG, "Setting content values: barcode OK");
+        Log.d(DBHelper.LOG_TAG, "Setting content values: barcode OK");
         contentValues.put(FATHER, father);
-        Log.d(MainActivity.LOG_TAG, "Setting content values: father");
-        Log.d(MainActivity.LOG_TAG, "Putting content values into DB file");
+        Log.d(DBHelper.LOG_TAG, "Setting content values: father");
+        Log.d(DBHelper.LOG_TAG, "Putting content values into DB file");
         db.insert(TABLE_NAME, null, contentValues);
-        Log.d(MainActivity.LOG_TAG, "Success");
+        Log.d(DBHelper.LOG_TAG, "Success");
         this.close();
     }
 
@@ -97,16 +119,18 @@ public class DBHelper extends SQLiteOpenHelper {
         );
         cursor.moveToFirst();
         int colBarcode = cursor.getColumnIndex(BARCODE);
-        String sss = "";
-        try{sss = cursor.getString(colBarcode);}
+        int colBarcodeValue = cursor.getColumnIndex(BC_VALUE);
+        String lastRow = "";
+        try{lastRow = cursor.getString(colBarcodeValue) + '\n' + cursor.getString(colBarcode);}
         catch(Exception e){
             e.printStackTrace();
-            sss = "Null";
+            lastRow = "Null";
         }
         this.close();
-        return sss;
+        return lastRow;
     }
 
+    //TODO finish export
     public String getAllRowsForExport(){
         StringBuffer expSB = new StringBuffer("");
         SQLiteDatabase db = this.getWritableDatabase();
@@ -145,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         for(;cursor.moveToNext();){
-            Log.d(MainActivity.LOG_TAG, "moveToNext room "+cursor.getString(cursor.getColumnIndex(BARCODE)));
+            Log.d(DBHelper.LOG_TAG, "moveToNext room "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         for(;cursor.moveToPrevious();){
             if(!buffer.contains(cursor.getString(cursor.getColumnIndex(BARCODE))))
@@ -168,7 +192,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 BC_TYPE+" DESC"
         );
         for(;cursor.moveToNext();){
-            Log.d(MainActivity.LOG_TAG, "moveToNext person "+cursor.getString(cursor.getColumnIndex(BARCODE)));
+            Log.d(DBHelper.LOG_TAG, "moveToNext person "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         for(;cursor.moveToPrevious();){
             if(!buffer.contains(cursor.getString(cursor.getColumnIndex(BARCODE))))
@@ -191,14 +215,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         for(;cursor.moveToNext();){
-            Log.d(MainActivity.LOG_TAG, "moveToNext item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
+            Log.d(DBHelper.LOG_TAG, "moveToNext item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         for(;cursor.moveToPrevious();){
             children.add(new TreeNode(new IconTreeItemHolder.IconTreeItem(
                     R.string.ic_settings,
                     cursor.getString(cursor.getColumnIndex(BARCODE)),
                     MainActivity.mydb.getColumnDescriptionName(cursor.getString(cursor.getColumnIndex(BARCODE))))));
-            Log.d(MainActivity.LOG_TAG, "item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
+            Log.d(DBHelper.LOG_TAG, "item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         this.close();
         return children;
@@ -270,7 +294,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public String dropDbForExport(){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("mytable", null, null);
+        db.delete(TABLE_NAME, null, null);
         this.close();
         return "Dropped";
     }
@@ -290,11 +314,13 @@ public class DBHelper extends SQLiteOpenHelper {
             int colBarcode = cursor.getColumnIndex(BARCODE);
             int colType = cursor.getColumnIndex(BC_TYPE);
             int colFather = cursor.getColumnIndex(FATHER);
+            lastBarcodeInfo = new String[] {null,null,null};
             lastBarcodeInfo[0] = cursor.getString(colBarcode);
             lastBarcodeInfo[1] = cursor.getString(colType);
             lastBarcodeInfo[2] = cursor.getString(colFather);
+//            return lastBarcodeInfo;
         }
-        catch(Exception e){
+        catch(NullPointerException e){
             e.printStackTrace();
             lastBarcodeInfo = new String[] {null,null,null};
         }
@@ -313,13 +339,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 null,
                 sortOrder);
         cursor.moveToFirst();
-        if(cursor.getString(cursor.getColumnIndex(BC_TYPE)).equals("room")){
-            this.close();
-            return cursor.getString(cursor.getColumnIndex(BARCODE));
-        }
-        else{
+        if(cursor.getString(cursor.getColumnIndex(BC_TYPE)).equals("item")){
             this.close();
             return cursor.getString(cursor.getColumnIndex(FATHER));
+        }
+        else{
+            if(cursor.getString(cursor.getColumnIndex(BC_TYPE)).equals("user")){
+                this.close();
+                return cursor.getString(cursor.getColumnIndex(BARCODE));
+            }
+            else {
+                this.close();
+                return cursor.getString(cursor.getColumnIndex(BARCODE));
+            }
         }
     }
 
@@ -333,12 +365,12 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         else{
             if(bc_type.equals("room")){
-                if(lastType.equals("room")){
-                    deleteLastRow();
-                }
-                if(lastType.equals("user")){
-                    deleteLastRow();
-                }
+//                if(lastType.equals("room")){
+////                    deleteLastRow();
+//                }
+//                if(lastType.equals("user")){
+////                    deleteLastRow();
+//                }
                 return "empty";
             }
             if(bc_type.equals("user")){
@@ -346,7 +378,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     return lastBarcode;
                 }
                 if(lastType.equals("user")){
-                    deleteLastRow();
+//                    deleteLastRow();
                     return(lastFather);
                 }
                 if(lastType.equals("item")){

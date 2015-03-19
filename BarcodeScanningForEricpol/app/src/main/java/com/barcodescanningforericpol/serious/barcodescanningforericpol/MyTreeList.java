@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public  class MyTreeList extends Fragment {
+    public static final String LOG_TAG = MyTreeList.class.getSimpleName();
     private AndroidTreeView tView;
     private TextView statusBar;
     private TextView nodeValueBar;
@@ -58,9 +59,9 @@ public  class MyTreeList extends Fragment {
         String roomSettler;
         for(int i = 0;i<roomNode.size();i++){
             roomSettlers = MainActivity.mydb.getAllRoomSettlers(((IconTreeItemHolder.IconTreeItem)roomNode.get(i).getValue()).text);
-            Log.d(MainActivity.LOG_TAG, "room " + ((IconTreeItemHolder.IconTreeItem) roomNode.get(i).getValue()).text);
+            Log.d(MyTreeList.LOG_TAG, "room " + ((IconTreeItemHolder.IconTreeItem) roomNode.get(i).getValue()).text);
             for(int k=0; k<roomSettlers.size(); k++){
-                Log.d(MainActivity.LOG_TAG, "person " + roomSettlers.get(k));
+                Log.d(MyTreeList.LOG_TAG, "person " + roomSettlers.get(k));
                 roomSettler = roomSettlers.get(k);
                 if(MainActivity.mydb.isItem(roomSettler))
                     roomNode.get(i).addChild(new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string. ic_settings,roomSettler,MainActivity.mydb.getColumnDescriptionName(roomSettler))));
@@ -133,25 +134,25 @@ public  class MyTreeList extends Fragment {
                     if(IconTreeItemHolder.nodeLevel == 1){
                         MainActivity.mydb.updateContent("room", IconTreeItemHolder.clickedParentInfo[1], IconTreeItemHolder.clickedParentInfo[0], "empty");
                         MainActivity.mydb.updateContent(Info[0], Info[1], MainActivity.tempSource, IconTreeItemHolder.clickedParentInfo[0]);
-                        Log.d(MainActivity.LOG_TAG, "Saved scanned content");
+                        Log.d(MyTreeList.LOG_TAG, "Saved scanned content");
 
                     }
                     if(IconTreeItemHolder.nodeLevel == 2){
                         MainActivity.mydb.updateContent("room", IconTreeItemHolder.clickedParentInfo[3], IconTreeItemHolder.clickedParentInfo[2], "empty");
                         MainActivity.mydb.updateContent("user", IconTreeItemHolder.clickedParentInfo[1], IconTreeItemHolder.clickedParentInfo[0], IconTreeItemHolder.clickedParentInfo[2]);
                         MainActivity.mydb.updateContent(Info[0], Info[1], MainActivity.tempSource, IconTreeItemHolder.clickedParentInfo[0]);
-                        Log.d(MainActivity.LOG_TAG, "Saved scanned content");
+                        Log.d(MyTreeList.LOG_TAG, "Saved scanned content");
                         elasticValue1 = Info[1];
                         elasticValue2 = MainActivity.tempSource;
 
                     }
-                    Toast toast = Toast.makeText(getActivity().getApplicationContext(),
-                            "Scan added. Reopen list to see changes in the tree-list", Toast.LENGTH_SHORT);
-                    toast.show();
+//                    Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+//                            "Scan added. Reopen list to see changes in the tree-list", Toast.LENGTH_SHORT);
+//                    toast.show();
                 }
 //                IconTreeItemHolder.clicked_parent;
-                Log.d(MainActivity.LOG_TAG, "FORMAT and CONTENT received");
-                Log.d(MainActivity.LOG_TAG, "Starting to show dialog content");
+                Log.d(MyTreeList.LOG_TAG, "FORMAT and CONTENT received");
+                Log.d(MyTreeList.LOG_TAG, "Starting to show dialog content");
             }
             else{
                 elasticValue1 = "interrupt";
