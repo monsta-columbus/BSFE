@@ -27,9 +27,17 @@ public class DBHelper extends SQLiteOpenHelper {
         + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + BARCODE + " TEXT," +
         BC_TYPE + " TEXT," + BC_VALUE + " TEXT," + FATHER + " TEXT" + ")";
     public DBHelper(Context context) { super(context, DATABASE_NAME, null,1); }
-    private static final String sortOrder = COLUMN_ID + " DESC";
+    private static final String sortOrderDesc = COLUMN_ID + " DESC";
+    private static final String sortOrderAsc = COLUMN_ID + " ASC";
     private static final String experimentalSortOrder = COLUMN_ID + " DESC LIMIT 1";
     private String[] projection = {
+            COLUMN_ID,
+            BARCODE,
+            BC_TYPE,
+            BC_VALUE,
+            FATHER
+    };
+    private String[] projectionDistinct = {
             COLUMN_ID,
             BARCODE,
             BC_TYPE,
@@ -107,7 +115,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public String getLastRow(){
         SQLiteDatabase db = this.getWritableDatabase();
-        //TODO whereMaxId (possibly fixed)
         Cursor cursor = db.query(
                 TABLE_NAME,             // The table to query
                 safeProjection,             // The columns to return
@@ -115,7 +122,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 null,                   // The values for the WHERE clause
                 null,                   // don't group the rows
                 null,                   // don't filter by row groups
-                sortOrder               // The sort order
+                sortOrderDesc               // The sort order
         );
         cursor.moveToFirst();
         int colBarcode = cursor.getColumnIndex(BARCODE);
@@ -133,24 +140,143 @@ public class DBHelper extends SQLiteOpenHelper {
     //TODO finish export
     public String getAllRowsForExport(){
         StringBuffer expSB = new StringBuffer("");
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(
-                TABLE_NAME,
-                safeProjection,
-                null,
-                null,
-                null,
-                null,
-                sortOrder
-        );
+
+        //parser needs this string for some reason
         expSB.append("#<InventoryTool output file>\n" +
                 "#<version>1.0</version>");
-        for(;cursor.moveToNext();){
-        }
-        if (cursor.isLast()){
-            expSB.append("\n"+cursor.getString(cursor.getColumnIndex(BARCODE)));
-        }
-        for(;cursor.moveToPrevious();expSB.append("\n"+cursor.getString(cursor.getColumnIndex(BARCODE)))){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor roomCursor = db.query(
+                true,
+                TABLE_NAME,
+                projectionDistinct,
+                BC_TYPE+"=?",
+                new String[]{"room"},
+                BARCODE,
+                null,
+                sortOrderDesc,
+                null
+        );
+        //column ID:
+        //0 COLUMN_ID,
+        //1 BARCODE,
+        //2 BC_TYPE,
+        //3 BC_VALUE,
+        //4 FATHER
+
+        roomCursor.moveToFirst();
+        for(;!roomCursor.isAfterLast(); roomCursor.moveToNext()) {
+            Cursor itemInTheRoomCursor = db.query(
+                    true,
+                    TABLE_NAME,
+                    projectionDistinct,
+                    FATHER + "=?" + " AND " + BC_TYPE + "=?",
+                    new String[]{roomCursor.getString(roomCursor.getColumnIndex(BARCODE)),"item"},
+                    BARCODE,
+                    null,
+                    sortOrderDesc,
+                    null
+            );
+//            Cursor itemInTheRoomCursor = db.query(
+//                    TABLE_NAME,
+//                    projectionDistinct,
+//                    FATHER + "=?" + " AND " + BC_TYPE + "=?",
+//                    new String[]{roomCursor.getString(roomCursor.getColumnIndex(BARCODE)),"item"},
+//                    null,
+//                    null,
+//                    sortOrderAsc
+//            );
+
+            Cursor userInTheRoomCursor = db.query(
+                    true,
+                    TABLE_NAME,
+                    projectionDistinct,
+                    FATHER + "=?" + " AND " + BC_TYPE + "=?",
+                    new String[]{roomCursor.getString(roomCursor.getColumnIndex(BARCODE)),"user"},
+                    BARCODE,
+                    null,
+                    sortOrderDesc,
+                    null
+            );
+            if(itemInTheRoomCursor.moveToFirst()||userInTheRoomCursor.moveToFirst()){
+                Log.d(DBHelper.LOG_TAG, "There is something in this room");
+
+                if(itemInTheRoomCursor.moveToFirst()&&!userInTheRoomCursor.moveToFirst()){
+                    //true false
+                    Log.d(DBHelper.LOG_TAG, "TRUE FALSE");
+                    expSB.append("\n".concat(roomCursor.getString(roomCursor.getColumnIndex(BARCODE))));
+                    Log.d(DBHelper.LOG_TAG, roomCursor.getString(roomCursor.getColumnIndex(BARCODE)));
+                    for(;!itemInTheRoomCursor.isAfterLast(); itemInTheRoomCursor.moveToNext()) {
+                        expSB.append("\n".concat(itemInTheRoomCursor.getString(itemInTheRoomCursor.getColumnIndex(BARCODE))));
+                        Log.d(DBHelper.LOG_TAG, itemInTheRoomCursor.getString(itemInTheRoomCursor.getColumnIndex(BARCODE)));
+                    }
+                }
+                else{
+                    if(!itemInTheRoomCursor.moveToFirst()&&userInTheRoomCursor.moveToFirst()){
+                        //false true
+                        Log.d(DBHelper.LOG_TAG, "FALSE TRUE");
+                        //adding user's stuff
+                        Cursor itemOfTheUserCursor;
+                        for(boolean writeRoom = true;!userInTheRoomCursor.isAfterLast(); userInTheRoomCursor.moveToNext()) {
+                            itemOfTheUserCursor = db.query(
+                                    true,
+                                    TABLE_NAME,
+                                    projectionDistinct,
+                                    FATHER + "=" + userInTheRoomCursor.getString(userInTheRoomCursor.getColumnIndex(BARCODE)) + " AND " + BC_TYPE + "=?",
+                                    new String[]{"item"},
+                                    BARCODE,
+                                    null,
+                                    sortOrderDesc,
+                                    null
+                            );
+                            if(itemOfTheUserCursor.moveToFirst()){
+                                if(writeRoom){
+                                    expSB.append("\n".concat(roomCursor.getString(roomCursor.getColumnIndex(BARCODE))));
+                                    Log.d(DBHelper.LOG_TAG, roomCursor.getString(roomCursor.getColumnIndex(BARCODE)));
+                                    writeRoom = false;
+                                }
+                                expSB.append("\n".concat(userInTheRoomCursor.getString(userInTheRoomCursor.getColumnIndex(BARCODE))));
+                                Log.d(DBHelper.LOG_TAG, userInTheRoomCursor.getString(userInTheRoomCursor.getColumnIndex(BARCODE)));
+                                for(;!itemOfTheUserCursor.isAfterLast(); itemOfTheUserCursor.moveToNext()) {
+                                    expSB.append("\n".concat(itemOfTheUserCursor.getString(itemOfTheUserCursor.getColumnIndex(BARCODE))));
+                                    Log.d(DBHelper.LOG_TAG, itemOfTheUserCursor.getString(itemOfTheUserCursor.getColumnIndex(BARCODE)));
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        //true true
+                        Log.d(DBHelper.LOG_TAG, "TRUE TRUE");
+                        expSB.append("\n".concat(roomCursor.getString(roomCursor.getColumnIndex(BARCODE))));
+                        Log.d(DBHelper.LOG_TAG, roomCursor.getString(roomCursor.getColumnIndex(BARCODE)));
+                        for(;!itemInTheRoomCursor.isAfterLast(); itemInTheRoomCursor.moveToNext()) {
+                            expSB.append("\n".concat(itemInTheRoomCursor.getString(itemInTheRoomCursor.getColumnIndex(BARCODE))));
+                            Log.d(DBHelper.LOG_TAG, itemInTheRoomCursor.getString(itemInTheRoomCursor.getColumnIndex(BARCODE)));
+                        }
+                        Cursor itemOfTheUserCursor;
+                        for(;!userInTheRoomCursor.isAfterLast(); userInTheRoomCursor.moveToNext()) {
+                            itemOfTheUserCursor = db.query(
+                                    true,
+                                    TABLE_NAME,
+                                    projectionDistinct,
+                                    FATHER + "=" + userInTheRoomCursor.getString(userInTheRoomCursor.getColumnIndex(BARCODE)) + " AND " + BC_TYPE + "=?",
+                                    new String[]{"item"},
+                                    BARCODE,
+                                    null,
+                                    sortOrderDesc,
+                                    null
+                            );
+                            if(itemOfTheUserCursor.moveToFirst()){
+                                expSB.append("\n".concat(userInTheRoomCursor.getString(userInTheRoomCursor.getColumnIndex(BARCODE))));
+                                Log.d(DBHelper.LOG_TAG, userInTheRoomCursor.getString(userInTheRoomCursor.getColumnIndex(BARCODE)));
+                                for(;!itemOfTheUserCursor.isAfterLast(); itemOfTheUserCursor.moveToNext()) {
+                                    expSB.append("\n".concat(itemOfTheUserCursor.getString(itemOfTheUserCursor.getColumnIndex(BARCODE))));
+                                    Log.d(DBHelper.LOG_TAG, itemOfTheUserCursor.getString(itemOfTheUserCursor.getColumnIndex(BARCODE)));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         this.close();
         return expSB.toString();
@@ -166,7 +292,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{"room"},
                 null,
                 null,
-                sortOrder
+                sortOrderDesc
         );
         for(;cursor.moveToNext();){
             Log.d(DBHelper.LOG_TAG, "moveToNext room "+cursor.getString(cursor.getColumnIndex(BARCODE)));
@@ -212,7 +338,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{settler},
                 null,
                 null,
-                sortOrder
+                sortOrderDesc
         );
         for(;cursor.moveToNext();){
             Log.d(DBHelper.LOG_TAG, "moveToNext item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
@@ -221,7 +347,7 @@ public class DBHelper extends SQLiteOpenHelper {
             children.add(new TreeNode(new IconTreeItemHolder.IconTreeItem(
                     R.string.ic_settings,
                     cursor.getString(cursor.getColumnIndex(BARCODE)),
-                    MainActivity.mydb.getColumnDescriptionName(cursor.getString(cursor.getColumnIndex(BARCODE))))));
+                    MainFragment.mydb.getColumnDescriptionName(cursor.getString(cursor.getColumnIndex(BARCODE))))));
             Log.d(DBHelper.LOG_TAG, "item "+cursor.getString(cursor.getColumnIndex(BARCODE)));
         }
         this.close();
@@ -237,7 +363,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{barcode},
                 null,
                 null,
-                sortOrder
+                sortOrderDesc
         );
         cursor.moveToFirst();
         this.close();
@@ -253,7 +379,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{barcode},
                 null,
                 null,
-                sortOrder
+                sortOrderDesc
         );
         cursor.moveToFirst();
         this.close();
@@ -269,7 +395,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{barcode},
                 null,
                 null,
-                sortOrder
+                sortOrderDesc
         );
         cursor.moveToFirst();
         this.close();
@@ -285,7 +411,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{barcode},
                 null,
                 null,
-                sortOrder
+                sortOrderDesc
         );
         cursor.moveToFirst();
         this.close();
@@ -308,7 +434,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 null,                   // The values for the WHERE clause
                 null,                   // don't group the rows
                 null,                   // don't filter by row groups
-                sortOrder               // The sort order
+                sortOrderDesc               // The sort order
         );
             cursor.moveToFirst();
             int colBarcode = cursor.getColumnIndex(BARCODE);
@@ -337,7 +463,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 null,
                 null,
                 null,
-                sortOrder);
+                sortOrderDesc);
         cursor.moveToFirst();
         if(cursor.getString(cursor.getColumnIndex(BC_TYPE)).equals("item")){
             this.close();

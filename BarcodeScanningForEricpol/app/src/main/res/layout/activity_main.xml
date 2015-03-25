@@ -1,137 +1,155 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true">
+    <fragment
+        android:name="com.example.android.fragments"
+        android:id="@+id/lm_fragment"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+    <!--<ScrollView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/scrollView"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_alignParentBottom="true">-->
 
-            <Spinner
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/spinner"
-                android:layout_alignWithParentIfMissing="false"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:visibility="invisible" />
+        <!--<RelativeLayout-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content">-->
 
-            <Button android:id="@+id/scan_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:textStyle="bold"
-                android:text="@string/scan"
-                android:width="200dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_marginTop="52dp"
-                android:layout_marginBottom="6dp" />
+            <!--<Spinner-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="fill_parent"-->
+                <!--android:id="@+id/spinner"-->
+                <!--android:layout_alignWithParentIfMissing="false"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_alignParentTop="true"-->
+                <!--android:layout_alignParentLeft="true"-->
+                <!--android:layout_alignParentStart="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:visibility="invisible" />-->
 
-            <TextView
-                android:id="@+id/scan_format"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_below="@+id/scan_button"
-                android:layout_marginBottom="6dp" />
+            <!--<Button android:id="@+id/scan_button"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:textStyle="bold"-->
+                <!--android:text="@string/scan"-->
+                <!--android:width="200dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:layout_marginTop="52dp"-->
+                <!--android:layout_marginBottom="6dp" />-->
 
-            <TextView
-                android:id="@+id/scan_content"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textIsSelectable="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_below="@+id/scan_format"
-                android:layout_marginBottom="6dp" />
+            <!--<TextView-->
+                <!--android:id="@+id/scan_format"-->
+                <!--android:textStyle="bold"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textIsSelectable="true"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="6dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:layout_below="@+id/scan_button"-->
+                <!--android:layout_marginBottom="6dp" />-->
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/show_list"
-                android:id="@+id/list_button"
-                android:textStyle="bold"
-                android:layout_centerHorizontal="true"
-                android:width="200dp"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_below="@+id/scan_content"
-                android:layout_marginBottom="14dp" />
+            <!--<TextView-->
+                <!--android:id="@+id/scan_content"-->
+                <!--android:textStyle="bold"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textIsSelectable="true"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="6dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:layout_below="@+id/scan_format"-->
+                <!--android:layout_marginBottom="6dp" />-->
 
-            <Button
-                android:id="@+id/remove_button"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/remove_last_scan"
-                android:layout_centerHorizontal="true"
-                android:width="200dp"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_below="@+id/list_button"
-                android:layout_marginBottom="14dp" />
+            <!--<Button-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/show_list"-->
+                <!--android:id="@+id/list_button"-->
+                <!--android:textStyle="bold"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:width="200dp"-->
+                <!--android:layout_marginTop="6dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:layout_below="@+id/scan_content"-->
+                <!--android:layout_marginBottom="14dp" />-->
 
-            <Button
-                android:id="@+id/export_button"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/export_scanned_content"
-                android:layout_centerHorizontal="true"
-                android:width="200dp"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_below="@+id/remove_button"
-                android:layout_marginBottom="14dp" />
+            <!--<Button-->
+                <!--android:id="@+id/remove_button"-->
+                <!--android:textStyle="bold"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/remove_last_scan"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:width="200dp"-->
+                <!--android:layout_marginTop="14dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:layout_below="@+id/list_button"-->
+                <!--android:layout_marginBottom="14dp" />-->
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/drop_db_for_export"
-                android:id="@+id/drop_db_for_export_button"
-                android:layout_below="@+id/export_button"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="14dp"
-                android:gravity="center_vertical|center_horizontal"
-                android:width="200dp"
-                android:textStyle="bold" />
+            <!--<Button-->
+                <!--android:id="@+id/export_button"-->
+                <!--android:textStyle="bold"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/export_scanned_content"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:width="200dp"-->
+                <!--android:layout_marginTop="14dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:layout_below="@+id/remove_button"-->
+                <!--android:layout_marginBottom="14dp" />-->
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/update"
-                android:id="@+id/update_button"
-                android:gravity="center_vertical|center_horizontal"
-                android:width="200dp"
-                android:textStyle="bold"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="14dp"
-                android:layout_below="@+id/drop_db_for_export_button" />
+            <!--<Button-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/drop_db_for_export"-->
+                <!--android:id="@+id/drop_db_for_export_button"-->
+                <!--android:layout_below="@+id/export_button"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="14dp"-->
+                <!--android:layout_marginBottom="14dp"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:width="200dp"-->
+                <!--android:textStyle="bold" />-->
 
-        </RelativeLayout>
-    </ScrollView>
+            <!--<Button-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/update"-->
+                <!--android:id="@+id/update_button"-->
+                <!--android:gravity="center_vertical|center_horizontal"-->
+                <!--android:width="200dp"-->
+                <!--android:textStyle="bold"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:layout_marginTop="14dp"-->
+                <!--android:layout_below="@+id/drop_db_for_export_button" />-->
 
-</RelativeLayout>
+            <!--<Button-->
+                <!--style="?android:attr/buttonStyleSmall"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Settings"-->
+                <!--android:id="@+id/settings_button"-->
+                <!--android:layout_alignParentTop="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_alignParentEnd="true" />-->
+
+        <!--</RelativeLayout>-->
+    <!--</ScrollView>-->
+
+</LinearLayout>

@@ -22,7 +22,7 @@ public class DbContentListActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //TODO create treeview-structure
-        SQLiteDatabase db = MainActivity.mydb.getReadableDatabase();
+        SQLiteDatabase db = MainFragment.mydb.getReadableDatabase();
         ListView listView = getListView();
         String sortOrder =
                 COLUMN_ID + " DESC";
@@ -56,13 +56,13 @@ public class DbContentListActivity extends ListActivity {
         listView.setAdapter(mAdapter);
         cursor.moveToFirst();
         colBarcode = cursor.getColumnIndex(BARCODE);
-        MainActivity.formatTxt.setText("Last scanned barcode:");
+        MainFragment.formatTxt.setText("Last scanned barcode:");
         //TODO catch exception 3
-        try{MainActivity.contentTxt.setText(cursor.getString(colBarcode));}
+        try{MainFragment.contentTxt.setText(cursor.getString(colBarcode));}
         catch (Exception e)
         {e.printStackTrace();
-            MainActivity.contentTxt.setText("Null");
+            MainFragment.contentTxt.setText("Null");
         }
-        MainActivity.mydb.close();
+        MainFragment.mydb.close();
     }
 }
