@@ -29,14 +29,10 @@ import java.util.Date;
  * Created by emergency on 3/25/15.
  */
 
-
-
-
-
 public class MainFragment extends Fragment{
 
     public static final String LOG_TAG = FragmentActivity.class.getSimpleName();
-    DialogFragment skip_save_dialog;
+    static DialogFragment skip_save_dialog;
     //    PreferenceFragment preferenceFragment;
     static DBHelper mydb;
     static IDBHelper myidb;
@@ -80,7 +76,13 @@ public class MainFragment extends Fragment{
         scanBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                IntentIntegrator scanIntegrator = new IntentIntegrator(getActivity());
+                IntentIntegrator scanIntegrator = new IntentIntegrator(getActivity()){
+                    @Override
+                    protected void startActivityForResult(Intent intent, int code) {
+                        MainFragment.this.startActivityForResult(intent, 312); // REQUEST_CODE override
+                    }
+                };
+                MainFragment.this.startActivityForResult(, 312);
                 scanIntegrator.initiateScan();
                 Log.d(LOG_TAG, "Scanning");
             }
@@ -184,4 +186,31 @@ public class MainFragment extends Fragment{
         }
         return true;
     }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+//        super.onActivityResult(requestCode, resultCode, intent);
+////        Fragment fragment = getSupportFragmentManager().findFragmentById(R.layout.fragment_default);
+////        fragment.onActivityResult(requestCode, resultCode, intent);
+//        com.google.zxing.integration.android.IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+//        if (scanningResult != null) {
+//            String scanContent = scanningResult.getContents();
+////            com.google.zxing.integration.android.IntentResult
+////            String scanFormat = scanningResult.getFormatName();
+//            formatTxt.setText("Currently scanned barcode:");
+//            contentTxt.setText(scanContent);
+//            if (scanContent != null){
+//                tempSource = scanContent;
+//                Log.d(LOG_TAG, "FORMAT and CONTENT received");
+//                Log.d(LOG_TAG, "Starting to show dialog content");
+//
+//                skip_save_dialog.show(getFragmentManager(), null);
+//            }
+//            else{
+//                Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+//                        "No scan data received!", Toast.LENGTH_SHORT);
+//                toast.show();
+//            }
+//        }
+//    }
 }
